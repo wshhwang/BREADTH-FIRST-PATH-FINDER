@@ -1,16 +1,17 @@
-import queue
+###
+### starts at the tree root and explores all of the neighbor nodes. save it the queue 
+### when it is  at the present depth prior to moving on to the nodes at the next depth level.
+### Keep running until it run out of the nodes.
+### At the end node, it saved in the queue is the path and x_coor made it to keep the record 
+### as direction by counting of the x,y position.
+###
+###
+
 import pygame
+import queue
 
 
-#pygame.init()
-#set screen size
-#screen_width = 500 #back ground h
-#screen_height = 500 # back ground w
-#screen = pygame.display.set_mode((screen_width, screen_height))
-#pygame.display.set_caption("Breadth Path Finder") #game title
-
-
-def createMaze():
+def maze1():
     maze = []
     maze.append(["#","O", "#", "#", "#", "#","#"])
     maze.append(["#"," ", " ", " ", "#", " ","#"])
@@ -27,122 +28,98 @@ def createMaze():
     maze.append(["#","#", "#", "#", "X", "#","#"])
 
     return maze
+ 
 
-def createMaze2():
-    maze = []
-    maze.append(["#","#", "#", "#", "#", "O", "#", "#", "#"])
-    maze.append(["#"," ", " ", " ", " ", " ", " ", " ", "#"])
-    maze.append(["#"," ", "#", "#", " ", "#", "#", " ", "#"])
-    maze.append(["#"," ", "#", " ", " ", " ", "#", " ", "#"])
-    maze.append(["#"," ", "#", " ", "#", " ", "#", " ", "#"])
-    maze.append(["#"," ", "#", " ", "#", " ", "#", " ", "#"])
-    maze.append(["#"," ", "#", " ", "#", " ", "#", "#", "#"])
-    maze.append(["#"," ", " ", " ", " ", " ", " ", " ", "#"])
-    maze.append(["#","#", "#", "#", "#", "#", "#", "X", "#"])
-
-    return maze
-
-
-def printMaze(maze, path=""):
-    for x, pos in enumerate(maze[0]):
-        if pos == "O":
-            start = x
-
-    i = start
-    j = 0
-    pos = set()
-    for move in path:
+def pathfind(maze, moves):
+    for X, end in enumerate(maze[0]): #find X in maze
+        if end == "O":
+            start = X
+    x_coor = start
+    y_coor = 0
+    for move in moves:
         if move == "L":
-            i -= 1
-
-        elif move == "R":
-            i += 1
-
-        elif move == "U":
-            j -= 1
-
-        elif move == "D":
-            j += 1
-        pos.add((j, i))
+            x_coor -= 1
+        if move == "R":
+            x_coor += 1
+        if move == "U":
+            y_coor -= 1
+        if move == "D":
+            y_coor += 1
     
-    for j, row in enumerate(maze):
-        for i, col in enumerate(row):
-            if (j, i) in pos:
-                print("O ", end="")
-                
-            else:
-                print(col + " ", end="")
-                
-        print()
-        
+    if maze[y_coor][x_coor] == "X":
+        print("Path: " + moves)
+        printMaze(maze, moves)
+        return True
+    return False       
 
 
 def valid(maze, moves):
-    for x, pos in enumerate(maze[0]):
-        if pos == "O":
+    
+    for x, end in enumerate(maze[0]):
+        if end == "O":
             start = x
+    x_coor = start
+    y_coor = 0
 
-    i = start
-    j = 0
     for move in moves:
         if move == "L":
-            i -= 1
+            x_coor -= 1
         if move == "R":
-            i += 1
-        if move == "U":
-            j -= 1
+            x_coor += 1
         if move == "D":
-            j += 1
-
-        if not(0 <= i < len(maze[0]) and 0 <= j < len(maze)):
+            y_coor += 1
+        if move == "U":
+            y_coor -= 1
+    
+        if not(0 <= x_coor < len(maze[0]) and 0 <= y_coor < len(maze)):
             return False
-        elif (maze[j][i] == "#"):
+        elif (maze[y_coor][x_coor] == "#"):
             return False
-
     return True
 
-final_moves = []
-def findEnd(maze, moves):
-    for x, pos in enumerate(maze[0]):
-        if pos == "O":
+def printMaze(maze, path=""):
+    for x, end in enumerate(maze[0]):
+        if end == "O":
             start = x
+    x_coor = start
+    y_coor = 0
 
-    i = start
-    j = 0
-    for move in moves:
+    end = set()
+    for move in path:
         if move == "L":
-            i -= 1
-
-        elif move == "R":
-            i += 1
-
-        elif move == "U":
-            j -= 1
-
-        elif move == "D":
-            j += 1
-
-    if maze[j][i] == "X":
-        print("Found: " + moves)
-        printMaze(maze, moves)
-        return True
-
-    return False
+            x_coor -= 1
+        if move == "R":
+            x_coor += 1
+        if move == "U":
+            y_coor -= 1
+        if move == "D":
+            y_coor += 1
+        end.add((y_coor, x_coor))
+    
+    for y_coor, row in enumerate(maze):
+        for x_coor, col in enumerate(row):
+            if (y_coor, x_coor) in end:
+                print("O ", end="")
+            else:
+                print(col + " ", end="")
+        print()
+    return
 
 nums = queue.Queue()
 nums.put("")
 add = ""
-maze  = createMaze()
+#which maze to find?
+maze  = maze1()
+print()
+print()
 
-print()
-print()
-while not findEnd(maze, add): 
+while not pathfind(maze, add): 
     #grid = create_grid()
     add = nums.get()
     
     #print(add)
-    for j in ["L", "R", "U", "D"]:
-        put = add + j
+    for y_coor in ["L", "R", "U", "D"]:
+        put = add + y_coor
         if valid(maze, put):
             nums.put(put)
 
